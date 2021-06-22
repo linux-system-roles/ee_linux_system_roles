@@ -1,4 +1,5 @@
 # ee_linux_system_roles
+[![Docker Repository on Quay](https://quay.io/repository/linux-system-roles/ee_linux_system_roles/status "Docker Repository on Quay")](https://quay.io/repository/linux-system-roles/ee_linux_system_roles)
 
 Ansible supports a new feature for bundling collections and their runtime
 environments, including the Ansible executable and dependencies, together in an
