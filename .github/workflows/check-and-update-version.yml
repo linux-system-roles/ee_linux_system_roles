@@ -1,0 +1,90 @@
+name: Check for updated collection and update execution environment version
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v2
+      - name: Install ansible-builder
+        shell: bash
+        run: |
+          set -euxo pipefail
+          pip install -U ansible-builder 
+  get-latest-code:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout current repo
+        uses: actions/checkout@v2
+  check-versions:
+    needs: get-latest-code
+    runs-on: ubuntu-latest
+    name: Check for new collection version and compare with current version
+    steps:
+      - name: Check Galaxy version against current version
+        shell: bash
+        run: |
+          set -euxo pipefail
+          galaxy_version=$(curl -L -s -H 'Content-type: application/json' -H 'Accept: application/json' \
+            https://galaxy.ansible.com/api/v2/collections/fedora/linux_system_roles | \
+            jq -r .latest_version.version)
+          # must match X.Y.Z
+          if [[ "$galaxy_version" =~ +([0-9]).+([0-9]).+([0-9]) ]]; then
+            echo "collection version on galaxy is $galaxy_version"
+          else
+            echo "::error::invalid collection version $galaxy_version"
+            exit 1
+          fi
+          # get version from requirements.yml
+          cur_version=$(python -c 'import yaml
+          hsh = yaml.safe_load(open("requirements.yml").read())
+          print([xx for xx in hsh["collections"] if xx["name"] == "fedora.linux_system_roles"][0]["version"])
+          ')
+          if [ "$galaxy_version" = "$cur_version" ]; then
+            echo "current version $cur_version" is the same as the galaxy version"
+            echo "" > new_version.txt
+            exit 0
+          fi
+          echo "$galaxy_version" > new_version.txt
+      - name: Save new version
+        uses: actions/upload-artifact@v2
+        with:
+          name: new-version
+          path: new_version.txt
+  update-version:
+    needs: check-versions
+    runs-on: ubuntu-latest
+    name: Update version in requirements.yml
+    steps:
+      - name: Get saved new version
+        uses: actions/download-artifact@v2
+        with:
+          name: new-version
+      - name: Update version in requirements
+        shell: bash
+        run: |
+          set -euxo pipefail
+          new_version=$(cat new_version.txt || :)
+          if [ -z "$new_version" ]; then
+            echo "no new version - skipping"
+            exit 0
+          fi
+          python -c 'import sys,yaml
+          hsh = yaml.safe_load(open("requirements.yml").read())
+          for item in hsh["collections"]:
+            if item["name"] == "fedora.linux_system_roles":
+              item["version"] = sys.argv[1]
+              break
+          yaml.safe_dump(hsh, open("requirements.yml", "w"), default_flow_style=False)
+          ' "$new_version"
+          ansible-builder create -v 3 --file=builder.yml
+          if [ -n "$(git status -uno --porcelain)" ]; then
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -a -m "update version to $new_version"
+            git tag "$new_version"
+            git push --tags origin main
+          fi
