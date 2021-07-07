@@ -40,7 +40,7 @@ jobs:
           print([xx for xx in hsh["collections"] if xx["name"] == "fedora.linux_system_roles"][0]["version"])
           ')
           if [ "$galaxy_version" = "$cur_version" ]; then
-            echo "current version $cur_version" is the same as the galaxy version"
+            echo "current version $cur_version is the same as the galaxy version"
             exit 0
           fi
           python -c 'import sys,yaml
