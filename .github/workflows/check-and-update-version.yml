@@ -3,8 +3,9 @@ on:
   schedule:
     - cron: "*/10 * * * *"
 jobs:
-  setup:
+  check-update-version:
     runs-on: ubuntu-latest
+    name: Check for new collection version and compare with current version
     steps:
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -13,11 +14,6 @@ jobs:
         run: |
           set -euxo pipefail
           pip install -U ansible-builder 
-  check-versions:
-    needs: setup
-    runs-on: ubuntu-latest
-    name: Check for new collection version and compare with current version
-    steps:
       - name: checkout current repo
         uses: actions/checkout@v2
       - name: Check Galaxy version against current version
