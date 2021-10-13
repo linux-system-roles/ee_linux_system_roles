@@ -8,4 +8,4 @@ collections:
 - name: community.crypto
   version: 1.9.5
 - name: community.general
-  version: 3.7.0
+  version: 3.8.0
