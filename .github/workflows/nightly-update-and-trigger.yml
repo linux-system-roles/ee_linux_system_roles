@@ -21,7 +21,8 @@ jobs:
         run: |
           set -euxo pipefail
           python .github/scripts/update_and_return_versions.py
-          ansible-builder create -v 3 --file=builder.yml
+          # use Dockerfile for quay.io builder
+          ansible-builder create -v 3 --file=builder.yml --output-filename=Dockerfile
           if [ -n "$(git status -uno --porcelain)" ]; then
             commitmsg="Collection versions and/or builder files were updated"
           else
