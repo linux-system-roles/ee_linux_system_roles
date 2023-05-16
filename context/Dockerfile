@@ -1,30 +1,71 @@
-ARG EE_BASE_IMAGE=quay.io/ansible/ansible-runner:stable-2.12-latest
-ARG EE_BUILDER_IMAGE=quay.io/ansible/ansible-builder:latest
+ARG EE_BASE_IMAGE="quay.io/ansible/ansible-runner:stable-2.12-latest"
+ARG EE_BUILDER_IMAGE="quay.io/ansible/ansible-builder:latest"
+ARG PYCMD="/usr/bin/python3"
+ARG PKGMGR_PRESERVE_CACHE=""
+ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=""
+ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=""
 
-FROM $EE_BASE_IMAGE as galaxy
-ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=
-ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=
+# Base build stage
+FROM $EE_BASE_IMAGE as base
 USER root
+ARG EE_BASE_IMAGE
+ARG EE_BUILDER_IMAGE
+ARG PYCMD
+ARG PKGMGR_PRESERVE_CACHE
+ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS
+ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS
 
-ADD _build /build
+RUN $PYCMD -m ensurepip
+COPY _build/scripts/ /output/scripts/
+COPY _build/scripts/entrypoint /opt/builder/bin/entrypoint
+
+# Galaxy build stage
+FROM base as galaxy
+ARG EE_BASE_IMAGE
+ARG EE_BUILDER_IMAGE
+ARG PYCMD
+ARG PKGMGR_PRESERVE_CACHE
+ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS
+ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS
+
+RUN /output/scripts/check_galaxy
+COPY _build /build
 WORKDIR /build
 
 RUN ansible-galaxy role install $ANSIBLE_GALAXY_CLI_ROLE_OPTS -r requirements.yml --roles-path "/usr/share/ansible/roles"
 RUN ANSIBLE_GALAXY_DISABLE_GPG_VERIFY=1 ansible-galaxy collection install $ANSIBLE_GALAXY_CLI_COLLECTION_OPTS -r requirements.yml --collections-path "/usr/share/ansible/collections"
 
-FROM $EE_BUILDER_IMAGE as builder
+# Builder build stage
+FROM base as builder
+WORKDIR /build
+ARG EE_BASE_IMAGE
+ARG EE_BUILDER_IMAGE
+ARG PYCMD
+ARG PKGMGR_PRESERVE_CACHE
+ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS
+ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS
+
+RUN $PYCMD -m pip install --no-cache-dir bindep pyyaml requirements-parser
 
 COPY --from=galaxy /usr/share/ansible /usr/share/ansible
 
-ADD _build/bindep.txt bindep.txt
-RUN ansible-builder introspect --sanitize --user-bindep=bindep.txt --write-bindep=/tmp/src/bindep.txt --write-pip=/tmp/src/requirements.txt
-RUN assemble
+COPY _build/bindep.txt bindep.txt
+RUN $PYCMD /output/scripts/introspect.py introspect --sanitize --user-bindep=bindep.txt --write-bindep=/tmp/src/bindep.txt --write-pip=/tmp/src/requirements.txt
+RUN /output/scripts/assemble
 
-FROM $EE_BASE_IMAGE
-USER root
+# Final build stage
+FROM base as final
+ARG EE_BASE_IMAGE
+ARG EE_BUILDER_IMAGE
+ARG PYCMD
+ARG PKGMGR_PRESERVE_CACHE
+ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS
+ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS
+
 
 COPY --from=galaxy /usr/share/ansible /usr/share/ansible
 
 COPY --from=builder /output/ /output/
-RUN /output/install-from-bindep && rm -rf /output/wheels
+RUN /output/scripts/install-from-bindep && rm -rf /output/wheels
+RUN rm -rf /output
 LABEL ansible-execution-environment=true
