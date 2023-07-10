@@ -1,6 +1,6 @@
 collections:
 - name: fedora.linux_system_roles
-  version: 1.45.0
+  version: 1.45.1
 - name: ansible.netcommon
   version: 5.1.2
 - name: ansible.posix
