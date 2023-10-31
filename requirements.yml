@@ -1,11 +1,13 @@
 collections:
-- name: fedora.linux_system_roles
-  version: 1.56.0
 - name: ansible.netcommon
   version: 5.3.0
 - name: ansible.posix
   version: 1.5.4
+- name: ansible.utils
+  version: 2.11.0
 - name: community.crypto
   version: 2.16.0
 - name: community.general
   version: 7.5.0
+- name: fedora.linux_system_roles
+  version: 1.56.0
