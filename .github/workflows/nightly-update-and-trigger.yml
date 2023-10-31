@@ -2,20 +2,21 @@ name: Trigger a quay.io EE rebuild - update requirements.yml, ansible-builder fi
 on:
   schedule:
     - cron: "37 1 * * *"
+  workflow_dispatch:
 jobs:
   trigger-ee-rebuild:
     runs-on: ubuntu-latest
     name: Trigger a quay.io EE rebuild - update requirements.yml, ansible-builder files
     steps:
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
       - name: Install ansible-builder and ansible
         shell: bash
         run: |
           set -euxo pipefail
           pip install -U ansible-builder ansible
       - name: checkout current repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Trigger a quay.io EE rebuild - update requirements.yml, ansible-builder files
         shell: bash
         run: |
