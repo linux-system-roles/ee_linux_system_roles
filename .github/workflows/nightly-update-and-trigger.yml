@@ -9,7 +9,7 @@ jobs:
     name: Trigger a quay.io EE rebuild - update requirements.yml, ansible-builder files
     steps:
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
       - name: Install ansible-builder and ansible
         shell: bash
         run: |
