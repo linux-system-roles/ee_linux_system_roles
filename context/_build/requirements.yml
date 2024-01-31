@@ -4,10 +4,10 @@ collections:
 - name: ansible.posix
   version: 1.5.4
 - name: ansible.utils
-  version: 3.0.0
+  version: 3.1.0
 - name: community.crypto
   version: 2.17.1
 - name: community.general
-  version: 8.2.0
+  version: 8.3.0
 - name: fedora.linux_system_roles
   version: 1.71.0
