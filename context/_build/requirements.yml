@@ -8,6 +8,6 @@ collections:
 - name: community.crypto
   version: 2.21.1
 - name: community.general
-  version: 9.2.0
+  version: 9.3.0
 - name: fedora.linux_system_roles
   version: 1.86.0
