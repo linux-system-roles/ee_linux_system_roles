@@ -6,7 +6,7 @@ collections:
 - name: ansible.utils
   version: 5.1.2
 - name: community.crypto
-  version: 2.22.0
+  version: 2.22.1
 - name: community.general
   version: 9.4.0
 - name: fedora.linux_system_roles
