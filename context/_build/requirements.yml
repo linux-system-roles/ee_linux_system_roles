@@ -10,4 +10,4 @@ collections:
 - name: community.general
   version: 10.6.0
 - name: fedora.linux_system_roles
-  version: 1.97.2
+  version: 1.97.3
