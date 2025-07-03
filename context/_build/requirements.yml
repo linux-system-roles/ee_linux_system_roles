@@ -1,13 +1,13 @@
 collections:
 - name: ansible.netcommon
-  version: 8.0.0
+  version: 8.0.1
 - name: ansible.posix
   version: 2.0.0
 - name: ansible.utils
   version: 6.0.0
 - name: community.crypto
-  version: 2.26.3
+  version: 3.0.0
 - name: community.general
   version: 11.0.0
 - name: fedora.linux_system_roles
-  version: 1.104.1
+  version: 1.105.0
