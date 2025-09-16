@@ -16,7 +16,7 @@ jobs:
           set -euxo pipefail
           pip install -U ansible-builder ansible
       - name: checkout current repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Trigger a quay.io EE rebuild - update requirements.yml, ansible-builder files
         shell: bash
         run: |
