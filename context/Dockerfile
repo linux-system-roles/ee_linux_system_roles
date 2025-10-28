@@ -6,7 +6,7 @@ ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=""
 ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=""
 
 # Base build stage
-FROM $EE_BASE_IMAGE as base
+FROM $EE_BASE_IMAGE AS base
 USER root
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 ARG EE_BASE_IMAGE
@@ -20,7 +20,7 @@ COPY _build/scripts/ /output/scripts/
 COPY _build/scripts/entrypoint /opt/builder/bin/entrypoint
 
 # Galaxy build stage
-FROM base as galaxy
+FROM base AS galaxy
 ARG EE_BASE_IMAGE
 ARG EE_BUILDER_IMAGE
 ARG PYCMD
@@ -37,7 +37,7 @@ RUN ansible-galaxy role install $ANSIBLE_GALAXY_CLI_ROLE_OPTS -r requirements.ym
 RUN ANSIBLE_GALAXY_DISABLE_GPG_VERIFY=1 ansible-galaxy collection install $ANSIBLE_GALAXY_CLI_COLLECTION_OPTS -r requirements.yml --collections-path "/usr/share/ansible/collections"
 
 # Builder build stage
-FROM $EE_BUILDER_IMAGE as builder
+FROM $EE_BUILDER_IMAGE AS builder
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 WORKDIR /build
 ARG EE_BASE_IMAGE
@@ -57,7 +57,7 @@ RUN $PYCMD /output/scripts/introspect.py introspect --user-bindep=bindep.txt --w
 RUN /output/scripts/assemble
 
 # Final build stage
-FROM base as final
+FROM base AS final
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 ARG EE_BASE_IMAGE
 ARG EE_BUILDER_IMAGE
