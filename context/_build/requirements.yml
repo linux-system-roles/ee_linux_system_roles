@@ -2,7 +2,7 @@ collections:
 - name: ansible.netcommon
   version: 8.5.3
 - name: ansible.posix
-  version: 2.2.0
+  version: 2.2.1
 - name: ansible.utils
   version: 6.0.3
 - name: community.crypto
