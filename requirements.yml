@@ -1,10 +1,10 @@
 collections:
 - name: ansible.netcommon
-  version: 8.6.1
+  version: 8.6.2
 - name: ansible.posix
   version: 2.2.2
 - name: ansible.utils
-  version: 6.0.3
+  version: 6.1.0
 - name: community.crypto
   version: 3.3.0
 - name: community.general
