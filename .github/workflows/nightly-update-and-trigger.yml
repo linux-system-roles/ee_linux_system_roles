@@ -9,14 +9,14 @@ jobs:
     name: Trigger a quay.io EE rebuild - update requirements.yml, ansible-builder files
     steps:
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7
       - name: Install ansible-builder and ansible
         shell: bash
         run: |
           set -euxo pipefail
           pip install -U ansible-builder ansible
       - name: checkout current repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Trigger a quay.io EE rebuild - update requirements.yml, ansible-builder files
         shell: bash
         run: |
